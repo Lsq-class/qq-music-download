@@ -1,0 +1,126 @@
+diff --git a/node_modules/lamejs/.DS_Store b/node_modules/lamejs/.DS_Store
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/lamejs/src/.DS_Store b/node_modules/lamejs/src/.DS_Store
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/lamejs/src/js/BitStream.js b/node_modules/lamejs/src/js/BitStream.js
+index dd9d69f..ef2dd03 100644
+--- a/node_modules/lamejs/src/js/BitStream.js
++++ b/node_modules/lamejs/src/js/BitStream.js
+@@ -18,6 +18,7 @@ var Takehiro = require('./Takehiro.js');
+ var Tables = require('./Tables.js');
+ var Encoder = require('./Encoder.js');
+ var LameInternalFlags = require('./LameInternalFlags.js');
++var Lame = require("./Lame.js");
+ 
+ BitStream.EQ = function (a, b) {
+     return (Math.abs(a) > Math.abs(b)) ? (Math.abs((a) - (b)) <= (Math
+diff --git a/node_modules/lamejs/src/js/Encoder.js b/node_modules/lamejs/src/js/Encoder.js
+index 4fea74e..1bf4c55 100644
+--- a/node_modules/lamejs/src/js/Encoder.js
++++ b/node_modules/lamejs/src/js/Encoder.js
+@@ -13,6 +13,8 @@ var new_float_n = common.new_float_n;
+ var new_int = common.new_int;
+ var new_int_n = common.new_int_n;
+ var assert = common.assert;
++var MPEGMode = require("./MPEGMode.js");
++
+ 
+ /**
+  * ENCDELAY The encoder delay.
+diff --git a/node_modules/lamejs/src/js/Lame.js b/node_modules/lamejs/src/js/Lame.js
+index d2dc7c0..078a97a 100644
+--- a/node_modules/lamejs/src/js/Lame.js
++++ b/node_modules/lamejs/src/js/Lame.js
+@@ -24,6 +24,7 @@ var CBRNewIterationLoop = require('./CBRNewIterationLoop.js');
+ var BitStream = require('./BitStream.js');
+ var Tables = require('./Tables.js');
+ var Encoder = require('./Encoder.js');
++var MPEGMode = require("./MPEGMode.js");
+ 
+ function Lame() {
+     var self = this;
+@@ -119,7 +120,6 @@ function Lame() {
+ 
+     function lame_init_old(gfp) {
+         var gfc;
+-
+         gfp.class_id = LAME_ID;
+ 
+         gfc = gfp.internal_flags = new LameInternalFlags();
+@@ -745,7 +745,6 @@ function Lame() {
+      ********************************************************************/
+     this.lame_init_params = function (gfp) {
+         var gfc = gfp.internal_flags;
+-
+         gfc.Class_ID = 0;
+         if (gfc.ATH == null)
+             gfc.ATH = new ATH();
+diff --git a/node_modules/lamejs/src/js/Presets.js b/node_modules/lamejs/src/js/Presets.js
+index a3de3c6..3387f6d 100644
+--- a/node_modules/lamejs/src/js/Presets.js
++++ b/node_modules/lamejs/src/js/Presets.js
+@@ -13,6 +13,7 @@ var new_float_n = common.new_float_n;
+ var new_int = common.new_int;
+ var new_int_n = common.new_int_n;
+ var assert = common.assert;
++var Lame = require("./Lame.js");
+ 
+ function Presets() {
+     function VBRPresets(qual, comp, compS,
+diff --git a/node_modules/lamejs/src/js/PsyModel.js b/node_modules/lamejs/src/js/PsyModel.js
+index e440280..ce4b7a4 100644
+--- a/node_modules/lamejs/src/js/PsyModel.js
++++ b/node_modules/lamejs/src/js/PsyModel.js
+@@ -157,7 +157,7 @@ var assert = common.assert;
+ 
+ var FFT = require("./FFT.js");
+ var Encoder = require("./Encoder.js");
+-
++var MPEGMode = require('./MPEGMode.js');
+ function PsyModel() {
+ 
+     var fft = new FFT();
+@@ -187,7 +187,6 @@ function PsyModel() {
+     var NSATTACKTHRE_S = 25;
+ 
+     var NSFIRLEN = 21;
+-
+     /* size of each partition band, in barks: */
+     var LN_TO_LOG10 = 0.2302585093;
+ 
+diff --git a/node_modules/lamejs/src/js/QuantizePVT.js b/node_modules/lamejs/src/js/QuantizePVT.js
+index ef69bef..7f2d6f4 100644
+--- a/node_modules/lamejs/src/js/QuantizePVT.js
++++ b/node_modules/lamejs/src/js/QuantizePVT.js
+@@ -43,14 +43,13 @@ var assert = common.assert;
+ var Encoder = require('./Encoder.js');
+ var MeanBits = require('./MeanBits.js');
+ var LameInternalFlags = require('./LameInternalFlags.js');
+-
+ QuantizePVT.Q_MAX = (256 + 1);
+ QuantizePVT.Q_MAX2 = 116;
+ QuantizePVT.LARGE_BITS = 100000;
+ QuantizePVT.IXMAX_VAL = 8206;
+ 
+ function QuantizePVT() {
+-
++var BitStream = require('./BitStream.js');
+     var tak = null;
+     var rv = null;
+     var psy = null;
+diff --git a/node_modules/lamejs/src/js/index.js b/node_modules/lamejs/src/js/index.js
+index 156f72b..2664074 100644
+--- a/node_modules/lamejs/src/js/index.js
++++ b/node_modules/lamejs/src/js/index.js
+@@ -118,6 +118,9 @@ function Mp3Encoder(channels, samplerate, kbps) {
+         if (channels == 1) {
+             right = left;
+         }
++        if (!right) {
++            right = []
++        }
+         assert(left.length == right.length);
+         if (left.length > maxSamples) {
+             maxSamples = left.length;

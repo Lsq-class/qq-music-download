@@ -6,6 +6,7 @@ import { FileDownloader } from "./utils/DownloadList";
 declare global {
   interface Window {
     isExceOne: any;
+    toAudioCount: number
   }
   interface XMLHttpRequest {
     callbacks: any;
@@ -17,7 +18,9 @@ ReactDOM.createRoot(
   (() => {
     const app = document.createElement("div");
     document.body.append(app);
+    window.toAudioCount = 0
     return app;
+    
   })()
 ).render(
   <React.StrictMode>

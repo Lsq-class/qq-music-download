@@ -3,15 +3,17 @@ import "./App.css";
 import { splitAndMoveElement, syncRecursive } from "./utils/utils";
 import { FileDownloader } from "./utils/DownloadList";
 function App(props: any) {
-
   const [loadding, setLoading] = useState<boolean>(false);
   const [process, setProcess] = useState<number>(0);
   const [totalNum, setTotalNum] = useState<number>(0);
+  const [isGetMp3, setIsGetMp3] = useState<boolean>(false);
 
   useEffect(() => {
     if (!window.isExceOne) {
       window.isExceOne = true;
-      const msg = confirm("是否下载播放列表音乐.tip: 下载网页播放器内全部音乐，若需要挑选请点击取消，修改播放器内音乐，刷新页面点击确认等待全部下载！！！");
+      const msg = confirm(
+        "是否下载播放列表音乐.tip: 下载网页播放器内全部音乐，若需要挑选请点击取消，修改播放器内音乐，刷新页面点击确认等待全部下载！！！"
+      );
       if (msg === true) {
         setLoading(true);
         const body: any = document.querySelector("#app");
@@ -75,27 +77,37 @@ function App(props: any) {
                     ...songList[0],
                     downUrl: "https://ws6.stream.qqmusic.qq.com/" + preUrl,
                   };
-                  syncRecursive(songList, 1, (data: any) => {
-                    console.log(data, "allData");
-                    const fileDownloader = new FileDownloader(songList?.length);
-                    songList?.forEach(
-                      (item: any, i: number) => {
+                  syncRecursive(
+                    songList,
+                    1,
+                    (data: any) => {
+                      console.log(data, "allData");
+                      const fileDownloader = new FileDownloader(
+                        songList?.length
+                      );
+                      songList?.forEach((item: any, i: number) => {
                         setTimeout(() => {
                           fileDownloader.addToDownloadQueue(
                             item?.downUrl,
-                            item?.name
+                            item?.title,
+                            () => {
+                              const body: any = document.querySelector("#app");
+                              body.style.visibility = "visible";
+                              setLoading(false);
+                            }
                           );
                         }, 800 * i);
-                      },
-                    );
-                    const body: any = document.querySelector("#app");
-                    body.style.visibility = "visible";
-                    setLoading(false);
-                  },
-                  (index: any) => {
-                    setProcess(index);
-                  });
-                  
+                      });
+                    },
+                    (index: any) => {
+                      setIsGetMp3(false)
+                      if (process === totalNum) {
+                        setIsGetMp3(true)
+                      }
+                      setProcess(index);
+                    }
+                  );
+
                   console.log(preUrl, "aaaa");
                 }
                 // if (songId === undefined) {
@@ -104,7 +116,6 @@ function App(props: any) {
                 //   setLoading(false);
                 // }
               } else {
-                
               }
             } else {
               // const body: any = document.querySelector("#app");
@@ -132,7 +143,7 @@ function App(props: any) {
         left: 0,
       }}
     >
-      下载中... {"(" + process + "/" + totalNum + ")"}
+      {isGetMp3 ? "转换mp3文件中...（需要一段时间请耐心等待）" : "获取下载链接中..."} {"(" + process + "/" + totalNum + ")"}
     </div>
   ) : (
     <></>
