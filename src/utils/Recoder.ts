@@ -88,7 +88,7 @@ Recorder.Wav2Other = function (newSet, wavBlob, True, False) {
   reader.readAsArrayBuffer(wavBlob);
 };
 
-export const transWavBlob: any = async (wavBlob: any, fileName: string, total: number, cd) => {
+export const transWavBlob: any = async (wavBlob: any, fileName: string, total: number, cd, currentIndex: number) => {
   if (!wavBlob) {
     return;
   }
@@ -99,31 +99,34 @@ export const transWavBlob: any = async (wavBlob: any, fileName: string, total: n
   };
   // let resultBlob =null
   //数据格式一 Blob
-  Recorder.Wav2Other(
-    set,
-    wavBlob,
-    function (blob, duration, rec) {
-      console.log(
-        blob,
-        (window.URL || webkitURL).createObjectURL(blob),
-        "log——audio", total + "process"
+  setTimeout(() => {
+    Recorder.Wav2Other(
+        set,
+        wavBlob,
+        function (blob, duration, rec) {
+          console.log(
+            blob,
+            (window.URL || webkitURL).createObjectURL(blob),
+            "log——audio", total + "process"
+          );
+          window.toAudioCount ++ 
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", fileName + ".mp3");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          if (window.toAudioCount === total - 1) {
+            cd();
+          }
+          // resultBlob = blob
+        },
+        function (msg) {}
       );
-      window.toAudioCount ++ 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName + ".mp3");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      if (window.toAudioCount === total - 1) {
-        cd();
-      }
-      // resultBlob = blob
-    },
-    function (msg) {}
-  );
+  }, currentIndex * 200);
+ 
   // debugger
   // return resultBlob
 

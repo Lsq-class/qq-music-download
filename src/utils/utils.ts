@@ -107,13 +107,13 @@ export const blobToMp3 = (blob) =>  {
   reader. onerror = reject;
   })
 }
-export const blobToAwv = (buffer: any, fileName: string, total: number, cd: any) =>  {
+export const blobToAwv = (buffer: any, fileName: string, total: number, cd: any, currentIndex: number) =>  {
   // 创建音频上下文
   const audioCtx = new AudioContext();
   // arrayBuffer转audioBuffer
   audioCtx.decodeAudioData(buffer, async function (audioBuffer) {
     const blob = bufferToWave(audioBuffer, audioBuffer.sampleRate * audioBuffer.duration);
-    transWavBlob(blob, fileName, total, cd)
+    transWavBlob(blob, fileName, total, cd, currentIndex)
     // let mp3Blob: any = await convertToMp3(blob)
     // // debugger
     // const url = URL.createObjectURL(mp3Blob);
@@ -168,13 +168,19 @@ function bufferToWave(abuffer, len) {
   while(pos < length) {
        // interleave channels
       for(i = 0; i < numOfChan; i++) {
-          // clamp
+        if (channels[i][offset] !== undefined) {
           sample = Math.max(-1, Math.min(1, channels[i][offset])); 
           // scale to 16-bit signed int
           sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; 
           // write 16-bit sample
+          
+          
           view.setInt16(pos, sample, true);          
           pos += 2;
+        } else {
+          pos += 2;
+          break;
+        }
       }
       // next source sample
       offset++                                     
