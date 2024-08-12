@@ -37,7 +37,7 @@ export class FileDownloader {
       .then((blob) => {
         // this.downloadFile(blob, fileName);
         let buffer: any = blob
-        blobToAwv(buffer, fileName, this.maxConcurrentDownloads, cd)
+        blobToAwv(buffer, fileName, this.maxConcurrentDownloads, cd, this.numActiveDownloads)
         // this.downloadFileMp3(buffer, fileName)
       })
       .catch((error) => {

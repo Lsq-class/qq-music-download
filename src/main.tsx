@@ -26,7 +26,7 @@ ReactDOM.createRoot(
   <React.StrictMode>
     <App
       DownloadList={(url: any, filename: any) =>
-        fileDownloader.addToDownloadQueue(url, filename)
+        fileDownloader.addToDownloadQueue(url, filename, () => {})
       }
     />
   </React.StrictMode>
